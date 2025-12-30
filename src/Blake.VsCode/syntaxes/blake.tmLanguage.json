@@ -1,0 +1,88 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Blake",
+  "scopeName": "source.blake",
+  "fileTypes": ["blake"],
+  "patterns": [
+    { "include": "#meta-block" },
+    { "include": "#csharp" }
+  ],
+  "repository": {
+    "meta-block": {
+      "name": "meta.block.blake",
+      "begin": "@\\{\\|",
+      "end": "\\|\\}",
+      "beginCaptures": {
+        "0": { "name": "punctuation.definition.block.begin.blake keyword.control.blake" }
+      },
+      "endCaptures": {
+        "0": { "name": "punctuation.definition.block.end.blake keyword.control.blake" }
+      },
+      "patterns": [
+        { "include": "#quasi-quote" },
+        { "include": "#meta-csharp" }
+      ]
+    },
+    "meta-csharp": {
+      "name": "meta.embedded.block.csharp.blake",
+      "patterns": [
+        { "include": "source.cs" }
+      ]
+    },
+    "quasi-quote": {
+      "name": "meta.quasi-quote.blake",
+      "begin": "`",
+      "end": "`",
+      "beginCaptures": {
+        "0": { "name": "punctuation.definition.quasi-quote.begin.blake keyword.control.blake" }
+      },
+      "endCaptures": {
+        "0": { "name": "punctuation.definition.quasi-quote.end.blake keyword.control.blake" }
+      },
+      "patterns": [
+        { "include": "#splice" },
+        { "include": "#escaped-backtick" },
+        { "include": "#escaped-at" },
+        { "include": "#quasi-quote-content" }
+      ]
+    },
+    "quasi-quote-content": {
+      "name": "meta.quasi-quote.output.blake",
+      "patterns": [
+        { "include": "source.cs" }
+      ]
+    },
+    "splice": {
+      "name": "meta.splice.blake",
+      "begin": "@\\(",
+      "end": "\\)",
+      "beginCaptures": {
+        "0": { "name": "punctuation.definition.splice.begin.blake keyword.operator.splice.blake" }
+      },
+      "endCaptures": {
+        "0": { "name": "punctuation.definition.splice.end.blake keyword.operator.splice.blake" }
+      },
+      "patterns": [
+        {
+          "name": "meta.splice.expression.blake variable.other.splice.blake",
+          "match": "[^)]+"
+        }
+      ]
+    },
+    "escaped-backtick": {
+      "name": "constant.character.escape.backtick.blake",
+      "match": "``"
+    },
+    "escaped-at": {
+      "name": "constant.character.escape.at.blake",
+      "match": "@@"
+    },
+    "csharp": {
+      "name": "source.cs.embedded.blake",
+      "patterns": [
+        { "include": "#escaped-at" },
+        { "include": "source.cs" }
+      ]
+    }
+  }
+}

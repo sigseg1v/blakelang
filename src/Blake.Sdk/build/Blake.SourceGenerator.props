@@ -1,0 +1,30 @@
+<Project>
+  
+  <!-- 
+    Blake.Sdk.props
+    This file is automatically imported by projects that reference Blake.SourceGenerator.
+    It configures .blake files to be processed by the source generator.
+  -->
+  
+  <PropertyGroup>
+    <!-- Enable the Blake source generator -->
+    <BlakeEnabled Condition="'$(BlakeEnabled)' == ''">true</BlakeEnabled>
+    
+    <!-- Default file extension -->
+    <BlakeFileExtension Condition="'$(BlakeFileExtension)' == ''">.blake</BlakeFileExtension>
+  </PropertyGroup>
+  
+  <!-- Automatically include .blake files as AdditionalFiles -->
+  <ItemGroup Condition="'$(BlakeEnabled)' == 'true'">
+    <AdditionalFiles Include="**/*$(BlakeFileExtension)" 
+                     Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" />
+  </ItemGroup>
+  
+  <!-- Expose MSBuild properties to the source generator -->
+  <ItemGroup>
+    <CompilerVisibleProperty Include="BlakeEnabled" />
+    <CompilerVisibleProperty Include="RootNamespace" />
+    <CompilerVisibleProperty Include="ProjectDir" />
+  </ItemGroup>
+  
+</Project>

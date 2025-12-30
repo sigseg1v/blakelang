@@ -1,0 +1,98 @@
+{
+  "Meta Block": {
+    "prefix": "meta",
+    "body": [
+      "@{|",
+      "\t$0",
+      "|}"
+    ],
+    "description": "Insert a Blake meta-block"
+  },
+  "Meta Block with Output": {
+    "prefix": "metaout",
+    "body": [
+      "@{|",
+      "\t${1:// Your compile-time code here}",
+      "\t`${2:// Output template with @(splice)}`",
+      "|}"
+    ],
+    "description": "Insert a meta-block with output template"
+  },
+  "Meta Foreach": {
+    "prefix": "metafor",
+    "body": [
+      "@{|",
+      "\tforeach (var ${1:item} in ${2:collection})",
+      "\t{",
+      "\t\t`${3:// output for each @(${1:item})}",
+      "`",
+      "\t}",
+      "|}"
+    ],
+    "description": "Insert a meta-block with foreach loop"
+  },
+  "Quasi-Quote": {
+    "prefix": "qq",
+    "body": "`${1:output with @(splice)}`",
+    "description": "Insert a quasi-quoted output template"
+  },
+  "Splice": {
+    "prefix": "splice",
+    "body": "@(${1:expression})",
+    "description": "Insert a Blake splice expression"
+  },
+  "Generate Properties": {
+    "prefix": "genprop",
+    "body": [
+      "@{|",
+      "\tvar schema = new[]",
+      "\t{",
+      "\t\tnew { Name = \"${1:PropertyName}\", Type = \"${2:string}\" },",
+      "\t};",
+      "\t",
+      "\tforeach (var prop in schema)",
+      "\t{",
+      "\t\t`    public @(prop.Type) @(prop.Name) { get; set; }",
+      "`",
+      "\t}",
+      "|}"
+    ],
+    "description": "Generate properties from a schema"
+  },
+  "Generate Enum": {
+    "prefix": "genenum",
+    "body": [
+      "@{|",
+      "\tvar values = new[] { \"${1:Value1}\", \"${2:Value2}\" };",
+      "\t",
+      "\t`public enum ${3:MyEnum}",
+      "{",
+      "`",
+      "\tfor (int i = 0; i < values.Length; i++)",
+      "\t{",
+      "\t\t`    @(values[i]) = @(i),",
+      "`",
+      "\t}",
+      "\t`}",
+      "`",
+      "|}"
+    ],
+    "description": "Generate an enum from values"
+  },
+  "Blake File Template": {
+    "prefix": "blakefile",
+    "body": [
+      "// ${TM_FILENAME_BASE}.blake",
+      "",
+      "namespace ${1:MyNamespace};",
+      "",
+      "public partial class ${TM_FILENAME_BASE}",
+      "{",
+      "\t@{|",
+      "\t\t$0",
+      "\t|}",
+      "}"
+    ],
+    "description": "Create a new Blake file with basic structure"
+  }
+}

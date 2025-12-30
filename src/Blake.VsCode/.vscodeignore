@@ -1,0 +1,12 @@
+.vscode/**
+.vscode-test/**
+src/**
+.gitignore
+tsconfig.json
+**/*.ts
+**/*.map
+**/.eslintrc.json
+node_modules/**
+
+# Keep server/ in the package - users need the LSP server binaries!
+# server/ is in .gitignore but must be included in .vsix

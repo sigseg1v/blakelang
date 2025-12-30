@@ -1,0 +1,85 @@
+{
+  "name": "blakelang",
+  "displayName": "Blake Language",
+  "description": "Language support for Blake, a C# superset with metaprogramming",
+  "version": "0.1.0",
+  "publisher": "your-publisher-name",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "keywords": [
+    "blake",
+    "csharp",
+    "metaprogramming",
+    "source-generator"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sigseg1v/blakelang"
+  },
+  "activationEvents": [
+    "onLanguage:blake"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "blake",
+        "aliases": ["Blake", "blake"],
+        "extensions": [".blake"],
+        "configuration": "./language-configuration.json",
+        "icon": {
+          "light": "./icons/blake-light.png",
+          "dark": "./icons/blake-dark.png"
+        }
+      }
+    ],
+    "grammars": [
+      {
+        "language": "blake",
+        "scopeName": "source.blake",
+        "path": "./syntaxes/blake.tmLanguage.json",
+        "embeddedLanguages": {
+          "source.cs.embedded.blake": "csharp",
+          "meta.embedded.block.csharp": "csharp"
+        }
+      }
+    ],
+    "snippets": [
+      {
+        "language": "blake",
+        "path": "./snippets/blake.json"
+      }
+    ],
+    "configuration": {
+      "title": "Blake",
+      "properties": {
+        "blake.enableMetaBlockHighlighting": {
+          "type": "boolean",
+          "default": true,
+          "description": "Highlight meta-blocks with a different background color"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "npm run build-server && tsc -p ./",
+    "build-server": "dotnet publish ../Blake.LanguageServer/Blake.LanguageServer.csproj -c Release -o ./server",
+    "watch": "tsc -watch -p ./",
+    "package": "vsce package",
+    "lint": "eslint src --ext ts"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^2.22.0",
+    "typescript": "^5.3.0"
+  },
+  "dependencies": {
+    "vscode-languageclient": "^9.0.1"
+  }
+}
