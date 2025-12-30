@@ -1,0 +1,70 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- Source generators MUST target netstandard2.0 -->
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+
+    <!-- Package metadata -->
+    <PackageId>Blake.SourceGenerator</PackageId>
+    <Version>0.1.17</Version>
+    <Authors>Max Verigin</Authors>
+    <Description>
+      Blake is a C# superset language that adds metaprogramming.
+      Use @{| |} for compile-time code blocks and @() for splices.
+    </Description>
+    <PackageTags>source-generator;roslyn;metaprogramming;codegen</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/sigseg1v/blakelang</RepositoryUrl>
+
+    <!-- Mark as analyzer/generator -->
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <DevelopmentDependency>true</DevelopmentDependency>
+    <IsRoslynComponent>true</IsRoslynComponent>
+    <!-- Allow dynamic assembly loading for meta-block execution -->
+    <EnforceExtendedAnalyzerRules>false</EnforceExtendedAnalyzerRules>
+
+    <!-- Copy dependencies to output directory for local development -->
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+
+    <!-- Suppress warnings about netstandard2.0 nullability -->
+    <NoWarn>$(NoWarn);NU5128;CS8600;CS8602;CS8603;CS8604</NoWarn>
+
+    <!-- Output packages to local NuGet feed for development -->
+    <PackageOutputPath>$(MSBuildThisFileDirectory)..\..\packages</PackageOutputPath>
+  </PropertyGroup>
+
+  <!-- Roslyn analyzer/generator dependencies -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" PrivateAssets="all" />
+    <PackageReference Include="Sprache" Version="2.3.1" PrivateAssets="all" />
+  </ItemGroup>
+
+  <!-- Embed Blake API source for runtime code generation -->
+  <ItemGroup>
+    <!-- Exclude from compilation, only embed as resource -->
+    <Compile Remove="BlakeAPITemplate.cs" />
+    <EmbeddedResource Include="BlakeAPITemplate.cs" />
+  </ItemGroup>
+  <!-- Pack the analyzer into the correct location -->
+  <ItemGroup>
+    <!-- Pack all dependencies including Roslyn - the SDK's version may be incompatible -->
+    <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    <None Include="$(OutputPath)\Sprache.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    <None Include="$(OutputPath)\Microsoft.CodeAnalysis.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    <None Include="$(OutputPath)\Microsoft.CodeAnalysis.CSharp.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    <None Include="$(OutputPath)\System.Collections.Immutable.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    <None Include="$(OutputPath)\System.Reflection.Metadata.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    <None Include="$(OutputPath)\System.Runtime.CompilerServices.Unsafe.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    <None Include="$(OutputPath)\System.Memory.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+  </ItemGroup>
+
+  <!-- Include build props and targets -->
+  <ItemGroup>
+    <None Include="..\Blake.Sdk\build\*" Pack="true" PackagePath="build" Visible="false" />
+  </ItemGroup>
+
+</Project>
