@@ -1,0 +1,57 @@
+namespace Sample.Examples;
+
+/// <summary>
+/// Demonstrates automatic return type inference using 'var' return types.
+/// Blake lang will infer the actual return types at compile time.
+/// </summary>
+public class VarReturnTypeDemo
+{
+    // Simple var return type - infers 'string'
+    public var GetName() { return "Blake Lang"; }
+
+    // Expression-bodied - infers 'int'
+    public var GetVersion() => 1;
+
+    // Multiple returns with same type - infers 'string'
+    public var GetGreeting(bool formal)
+    {
+        if (formal)
+            return "Good day!";
+        return "Hey!";
+    }
+
+    // No return statements - infers 'void'
+    public var LogMessage(string msg)
+    {
+        System.Console.WriteLine(msg);
+    }
+
+    // Async method - infers 'Task<string>'
+    public async var FetchDataAsync()
+    {
+        await System.Threading.Tasks.Task.Delay(10);
+        return "Data loaded!";
+    }
+
+    // Local function with var - infers 'double'
+    public void LogCalculatedArea(double radius)
+    {
+        var CalculatePi() => 3.14159;
+
+        double pi = CalculatePi();
+        double area = pi * radius * radius;
+        System.Console.WriteLine($"Area: {area}");
+    }
+
+    // Combined with meta-blocks
+@{|
+    var operations = new[] {
+        new { Name = "Add", Op = "+" },
+        new { Name = "Subtract", Op = "-" },
+        new { Name = "Multiply", Op = "*" }
+    };
+    foreach (var op in operations) {
+`   public var @(op.Name)(int a, int b) => a @(op.Op) b;`
+    }
+|}
+}

@@ -1,0 +1,96 @@
+// User.blake
+// This file demonstrates Blake metaprogramming syntax.
+// It will be transformed into User.blake.g.cs at compile time.
+
+namespace Sample.Models;
+
+/// <summary>
+/// User entity with generated properties
+/// </summary>
+public class User
+{
+    // Static C# code passes through unchanged
+    public int Id { get; set; }
+
+    public UserRole Role { get; set; }
+    
+    // Meta-block: executed at compile time
+    // Everything inside meta-blocks is C# that runs during compilation
+    // Backtick strings are quasi-quoted OUTPUT templates
+    // Splices inside backticks are compile-time interpolation
+@{|
+    // Define schema once - it will be available in all subsequent meta-blocks in this file
+    var schema = new[]
+    {
+        new { Name = "FirstName", Type = "string", Required = true },
+        new { Name = "LastName", Type = "string", Required = true },
+        new { Name = "Email", Type = "string", Required = true },
+        new { Name = "Age", Type = "int", Required = false },
+        new { Name = "IsActive", Type = "bool", Required = false },
+    };
+
+    // Generate properties for each field
+    foreach (var field in schema)
+    {
+        var csharpType = field.Type switch
+        {
+            "string" => "string",
+            "int" => field.Required ? "int" : "int?",
+            "bool" => field.Required ? "bool" : "bool?",
+            _ => "object"
+        };
+
+        // Backtick string emits to the output file
+        // @(expr) splices in the value of the expression
+`   public @(csharpType) @(field.Name) { get; set; }`
+    }
+|}
+
+    // Generate a constant with the field count (uses schema from first block)
+@{|
+`   public const int FieldCount = @(schema.Length);`
+|}
+
+    // Generate ToString method (uses schema from first block)
+@{|
+`   public override string ToString()
+    {
+        return $"User: {Id}"`
+        foreach (var field in schema.Where(f => f.Required))
+        {
+`           + $", {@(field.Name)}"`
+        }
+`           + string.Empty;
+    }`
+|}
+    
+    // Generate a Clone method (uses schema from first block)
+    public User Clone()
+    {
+        return new User
+        {
+            Id = this.Id,
+@{|
+            foreach (var field in schema)
+`           @(field.Name) = this.@(field.Name),`
+|}
+        };
+    }
+}
+
+// Generate an enum from data
+@{|
+    var roles = new[] 
+    { 
+        ("Admin", 0), 
+        ("User", 1), 
+        ("Guest", 2), 
+        ("Moderator", 3) 
+    };
+    
+`public enum UserRole`
+`{`
+    foreach (var (name, value) in roles)
+`   @(name) = @(value),`
+`}`
+|}
