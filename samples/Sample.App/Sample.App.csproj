@@ -12,7 +12,7 @@
 
   <!-- Reference the Blake source generator package -->
   <ItemGroup>
-    <PackageReference Include="Blake.SourceGenerator" Version="0.1.17" />
+    <PackageReference Include="Blake.SourceGenerator" Version="0.1.19" />
   </ItemGroup>
 
   <!-- .blake files are automatically included as AdditionalFiles by the props -->

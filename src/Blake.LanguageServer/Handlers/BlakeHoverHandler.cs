@@ -19,13 +19,13 @@ public class BlakeHoverHandler : HoverHandlerBase
         _workspace = workspace;
     }
 
-    public override Task<Hover?> Handle(HoverParams request, CancellationToken cancellationToken)
+    public override async Task<Hover?> Handle(HoverParams request, CancellationToken cancellationToken)
     {
         var document = _workspace.GetDocument(request.TextDocument.Uri);
         if (document == null)
         {
-            Console.Error.WriteLine($"Blake LSP: Document not found for hover request");
-            return Task.FromResult<Hover?>(null);
+            await Console.Error.WriteLineAsync($"Blake LSP: Document not found for hover request");
+            return null;
         }
 
         // Check context
@@ -34,27 +34,27 @@ public class BlakeHoverHandler : HoverHandlerBase
             request.Position.Character
         );
 
-        Console.Error.WriteLine($"Blake LSP: Hover request at {request.Position.Line}:{request.Position.Character}, context: {context}");
+        await Console.Error.WriteLineAsync($"Blake LSP: Hover request at {request.Position.Line}:{request.Position.Character}, context: {context}");
 
         if (context == BlakeContext.CSharpPassthrough)
         {
             // Use generated .g.cs file with #blake-line comments for position mapping
-            return Task.FromResult(GetHoverFromGeneratedFile(document, request.Position));
+            return GetHoverFromGeneratedFile(document, request.Position);
         }
         else if (context == BlakeContext.QuasiQuoteSplice)
         {
             // Splices need special handling - extract and analyze the splice expression
-            return Task.FromResult(GetHoverFromSplice(document, request.Position));
+            return GetHoverFromSplice(document, request.Position);
         }
         else if (context == BlakeContext.MetaBlockCode)
         {
             // Use meta-block code analysis
-            return Task.FromResult(GetHoverFromMetaBlock(document, request.Position));
+            return GetHoverFromMetaBlock(document, request.Position);
         }
         else if (context == BlakeContext.QuasiQuoteText)
         {
             // Quasi-quote text is template content - just show basic info
-            return Task.FromResult<Hover?>(new Hover
+            return new Hover
             {
                 Contents = new MarkedStringsOrMarkupContent(
                     new MarkupContent
@@ -63,10 +63,10 @@ public class BlakeHoverHandler : HoverHandlerBase
                         Value = "**Quasi-quote text**\n\nLiteral statements that will be emit to the output as-is."
                     }
                 )
-            });
+            };
         }
 
-        return Task.FromResult<Hover?>(null);
+        return null;
     }
 
     private Hover? GetHoverFromGeneratedFile(BlakeDocument document, Position position)

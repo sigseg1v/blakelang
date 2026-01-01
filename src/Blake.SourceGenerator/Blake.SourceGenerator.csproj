@@ -9,7 +9,7 @@
 
     <!-- Package metadata -->
     <PackageId>Blake.SourceGenerator</PackageId>
-    <Version>0.1.17</Version>
+    <Version>0.1.19</Version>
     <Authors>Max Verigin</Authors>
     <Description>
       Blake is a C# superset language that adds metaprogramming.

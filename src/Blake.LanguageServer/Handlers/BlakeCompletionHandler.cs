@@ -23,15 +23,15 @@ public class BlakeCompletionHandler : CompletionHandlerBase
         _workspace = workspace;
     }
 
-    public override Task<CompletionList> Handle(CompletionParams request, CancellationToken cancellationToken)
+    public override async Task<CompletionList> Handle(CompletionParams request, CancellationToken cancellationToken)
     {
-        Console.Error.WriteLine($"Blake LSP: Completion request at {request.Position.Line}:{request.Position.Character}");
+        await Console.Error.WriteLineAsync($"Blake LSP: Completion request at {request.Position.Line}:{request.Position.Character}");
 
         var document = _workspace.GetDocument(request.TextDocument.Uri);
         if (document == null)
         {
-            Console.Error.WriteLine($"Blake LSP: Document not found for completion");
-            return Task.FromResult(new CompletionList());
+            await Console.Error.WriteLineAsync($"Blake LSP: Document not found for completion");
+            return new CompletionList();
         }
 
         // Check if we're in a context where completions are relevant
@@ -40,22 +40,22 @@ public class BlakeCompletionHandler : CompletionHandlerBase
             request.Position.Character
         );
 
-        Console.Error.WriteLine($"Blake LSP: Completion context: {context}");
+        await Console.Error.WriteLineAsync($"Blake LSP: Completion context: {context}");
 
         if (context != BlakeContext.MetaBlockCode && context != BlakeContext.QuasiQuoteSplice)
         {
             // Don't provide completions in C# passthrough or quasi-quote text
-            return Task.FromResult(new CompletionList());
+            return new CompletionList();
         }
 
         try
         {
-            var completions = GetCompletionsForPosition(document, request.Position);
-            return Task.FromResult(new CompletionList(completions));
+            var completions = await GetCompletionsForPositionAsync(document, request.Position, cancellationToken);
+            return new CompletionList(completions);
         }
         catch
         {
-            return Task.FromResult(new CompletionList());
+            return new CompletionList();
         }
     }
 
@@ -65,7 +65,7 @@ public class BlakeCompletionHandler : CompletionHandlerBase
         return Task.FromResult(request);
     }
 
-    private List<CompletionItem> GetCompletionsForPosition(BlakeDocument document, Position position)
+    private async Task<List<CompletionItem>> GetCompletionsForPositionAsync(BlakeDocument document, Position position, CancellationToken cancellationToken)
     {
         var completions = new List<CompletionItem>();
 
@@ -75,7 +75,6 @@ public class BlakeCompletionHandler : CompletionHandlerBase
             var mapping = document.MapBlakePositionToMetaBlockCode(position.Line, position.Character);
             if (mapping == null)
             {
-                Console.Error.WriteLine($"Blake LSP: Failed to map position to meta-block code for completion");
                 return GetFallbackCompletions();
             }
 
@@ -83,11 +82,8 @@ public class BlakeCompletionHandler : CompletionHandlerBase
 
             if (string.IsNullOrWhiteSpace(metaCode))
             {
-                Console.Error.WriteLine($"Blake LSP: No meta-block code found for completion");
                 return GetFallbackCompletions();
             }
-
-            Console.Error.WriteLine($"Blake LSP: Completion at meta-block position {absolutePosition} in code of length {metaCode.Length}");
 
             // Create a Roslyn compilation for semantic analysis
             var references = GetCompilationReferences();
@@ -120,22 +116,21 @@ public class BlakeCompletionHandler : CompletionHandlerBase
             workspace.AddDocument(project.Id, "Blake.Runtime.cs", SourceText.From(blakeApiCode));
             var metaDocument = workspace.AddDocument(project.Id, "MetaCode.cs", SourceText.From(metaCode));
 
-            // Get the semantic model from the workspace document
-            var docSemanticModel = metaDocument.GetSemanticModelAsync().Result;
+            var docSemanticModel = await metaDocument.GetSemanticModelAsync(cancellationToken);
             if (docSemanticModel == null)
             {
-                Console.Error.WriteLine($"Blake LSP: Failed to get semantic model from document");
                 workspace.Dispose();
                 return GetFallbackCompletions();
             }
 
-            var recommendedSymbols = Recommender.GetRecommendedSymbolsAtPosition(
+#pragma warning disable CS0618 // Type or member is obsolete
+            var recommendedSymbols = await Recommender.GetRecommendedSymbolsAtPositionAsync(
                 docSemanticModel,
                 absolutePosition,
-                workspace
+                workspace,
+                cancellationToken: cancellationToken
             );
-
-            Console.Error.WriteLine($"Blake LSP: Found {recommendedSymbols.Count()} recommended symbols");
+#pragma warning restore CS0618 // Type or member is obsolete
 
             foreach (var symbol in recommendedSymbols.Take(100)) // Limit to 100 for performance
             {
@@ -163,9 +158,9 @@ public class BlakeCompletionHandler : CompletionHandlerBase
                 return completions;
             }
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            Console.Error.WriteLine($"Blake LSP: Error getting completions: {ex.Message}");
+            // Suppress errors and fall back to basic completions
         }
 
         // Fallback to basic completions
