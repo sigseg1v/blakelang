@@ -2,7 +2,7 @@
   "name": "blakelang",
   "displayName": "Blake Language",
   "description": "Language support for Blake, a C# superset with metaprogramming",
-  "version": "0.1.0",
+  "version": "0.1.20",
   "publisher": "your-publisher-name",
   "engines": {
     "vscode": "^1.85.0"
@@ -28,8 +28,13 @@
     "languages": [
       {
         "id": "blake",
-        "aliases": ["Blake", "blake"],
-        "extensions": [".blake"],
+        "aliases": [
+          "Blake",
+          "blake"
+        ],
+        "extensions": [
+          ".blake"
+        ],
         "configuration": "./language-configuration.json",
         "icon": {
           "light": "./icons/blake-light.png",
@@ -76,7 +81,7 @@
   "devDependencies": {
     "@types/node": "^20.10.0",
     "@types/vscode": "^1.85.0",
-    "@vscode/vsce": "^2.22.0",
+    "@vscode/vsce": "^3.7.1",
     "typescript": "^5.3.0"
   },
   "dependencies": {
